@@ -1,0 +1,80 @@
+Apply these changes to lib/cart_screen.dart:
+
+1) Add imports:
+   import 'app_routes.dart';
+   import 'orders_store.dart';
+
+2) In CartStore class, add:
+
+   Future<void> replaceAll(Iterable<CartLine> lines) async {
+     _byId
+       ..clear()
+       ..addEntries(lines.map((e) => MapEntry<String, CartLine>(e.id, e)));
+     notifyListeners();
+     await _persist();
+   }
+
+3) Add this helper (anywhere in file, outside classes):
+
+   Future<bool?> confirmPlaceOrder(BuildContext context, {required String address}) {
+     return showModalBottomSheet<bool>(
+       context: context,
+       backgroundColor: Colors.white,
+       shape: const RoundedRectangleBorder(
+         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+       ),
+       builder: (_) {
+         return Padding(
+           padding: const EdgeInsets.fromLTRB(16, 14, 16, 22),
+           child: Column(
+             mainAxisSize: MainAxisSize.min,
+             crossAxisAlignment: CrossAxisAlignment.start,
+             children: [
+               const Text('تأكيد الطلب', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+               const SizedBox(height: 8),
+               Text('هل أنت متأكد من العنوان؟\n$address',
+                   style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF666666))),
+               const SizedBox(height: 14),
+               Row(
+                 children: [
+                   Expanded(
+                     child: OutlinedButton(
+                       onPressed: () => Navigator.of(context).pop(false),
+                       child: const Text('تعديل'),
+                     ),
+                   ),
+                   const SizedBox(width: 10),
+                   Expanded(
+                     child: ElevatedButton(
+                       style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFF5A623)),
+                       onPressed: () => Navigator.of(context).pop(true),
+                       child: const Text('تأكيد', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w900)),
+                     ),
+                   ),
+                 ],
+               ),
+             ],
+           ),
+         );
+       },
+     );
+   }
+
+4) In _ContinueBar onTap, replace placeholder with:
+
+   onTap: () async {
+     final ok = await confirmPlaceOrder(context, address: OrdersStore.defaultAddress);
+     if (ok != true) return;
+
+     final cart = CartStore.instance;
+     if (cart.lines.isEmpty) return;
+
+     final order = await OrdersStore.instance.createFromCart(
+       cartLines: cart.lines,
+       address: OrdersStore.defaultAddress,
+     );
+     await cart.clear();
+
+     if (!context.mounted) return;
+     Navigator.of(context).pushReplacementNamed(AppRoutes.trackOrder, arguments: order.id);
+   },

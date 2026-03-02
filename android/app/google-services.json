@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "722542103475",
+    "project_id": "appforme-f8657",
+    "storage_bucket": "appforme-f8657.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:722542103475:android:789442bff8f6cf52f6d9c6",
+        "android_client_info": {
+          "package_name": "com.coffeehero.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1XlKwnDLZnjB9usOMHVW4mGAyfnkjE9o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:722542103475:android:d60d9b350662c5f6f6d9c6",
+        "android_client_info": {
+          "package_name": "com.coffeehero.app.ly"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1XlKwnDLZnjB9usOMHVW4mGAyfnkjE9o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:722542103475:android:07310def0bbb1b1ef6d9c6",
+        "android_client_info": {
+          "package_name": "com.example.app_for_me"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1XlKwnDLZnjB9usOMHVW4mGAyfnkjE9o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
