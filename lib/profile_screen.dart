@@ -105,6 +105,15 @@ class ProfileScreen extends StatelessWidget {
               ),
 
               const SizedBox(height: 10),
+              if (!isGuest)
+                _MenuItem(
+                  icon: Icons.delete_forever,
+                  title: 'حذف الحساب',
+                  danger: true,
+                  stroke: false,
+                  onTap: () => _showDeleteConfirmation(context, auth),
+                ),
+
               _MenuItem(
                 icon: Icons.logout,
                 title: 'تسجيل خروج',
@@ -119,6 +128,53 @@ class ProfileScreen extends StatelessWidget {
             ],
           );
         },
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, AuthService auth) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('حذف الحساب', textAlign: TextAlign.right),
+        content: const Text(
+          'هل أنت متأكد من حذف الحساب نهائياً؟ لا يمكن التراجع عن هذه العملية وسيتم مسح جميع بياناتك.',
+          textAlign: TextAlign.right,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('إلغاء'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context); // إغلاق الدايلوج
+              try {
+                // عرض مؤشر تحميل بسيط
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => const Center(child: CircularProgressIndicator(color: orange)),
+                );
+
+                await auth.deleteAccount();
+
+                if (!context.mounted) return;
+                Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.welcome, (r) => false);
+              } catch (e) {
+                if (!context.mounted) return;
+                Navigator.pop(context); // إغلاق مؤشر التحميل
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(e.toString(), textAlign: TextAlign.right),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            child: const Text('حذف الآن', style: TextStyle(color: Colors.red)),
+          ),
+        ],
       ),
     );
   }

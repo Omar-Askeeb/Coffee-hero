@@ -125,6 +125,46 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// ✅ NEW: حذف الحساب نهائياً (Firestore + Auth)
+  Future<void> deleteAccount() async {
+    final user = _auth.currentUser;
+    final profile = _currentUser;
+    if (user == null || profile == null) return;
+
+    try {
+      // 1) حذف البيانات من Firestore
+      if (profile.role == 'owner') {
+        // حذف وثيقة صاحب المقهى
+        await _db.collection(FirebaseSchema.customers).doc(user.uid).delete();
+      } else if (profile.role == 'employee') {
+        // حذف وثيقة الموظف من القائمة العامة
+        await _db.collection(FirebaseSchema.employeeProfiles).doc(user.uid).delete();
+        // حذف الموظف من قائمة صاحب المقهى (لو متوفر)
+        if (profile.ownerUid != null) {
+          await _db
+              .collection(FirebaseSchema.customers)
+              .doc(profile.ownerUid)
+              .collection(FirebaseSchema.employees)
+              .doc(user.uid)
+              .delete();
+        }
+      }
+
+      // 2) حذف الحساب من Firebase Auth
+      await user.delete();
+
+      // 3) مسح الحالة المحلية
+      await signOut();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        throw AuthException('العملية تتطلب تسجيل دخول حديث. يرجى إعادة تسجيل الدخول والمحاولة مرة أخرى.');
+      }
+      throw AuthException(_mapAuthError(e));
+    } catch (e) {
+      throw AuthException('فشل حذف الحساب: $e');
+    }
+  }
+
   /// تسجيل دخول (Owner أو Employee) برقم + كلمة مرور (بدون OTP)
   Future<void> signIn({required String phone, required String password}) async {
     final email = _emailFromPhone(phone);

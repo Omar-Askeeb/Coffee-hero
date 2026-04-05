@@ -7,6 +7,7 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 // ✅ NEW: Offline Gate
 import 'offline/offline_gate.dart';
+import 'firebase_options.dart';
 
 import 'app_routes.dart';
 import 'cart_screen.dart';
@@ -103,13 +104,22 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // ✅ Firebase
-  await Firebase.initializeApp();
-
-  // ✅ اطبع FCM Token (للتأكد إن FCM شغال)
-  await debugPrintFcmToken();
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    // ✅ اطبع FCM Token (للتأكد إن FCM شغال)
+    await debugPrintFcmToken();
+  } catch (e) {
+    debugPrint('Firebase initialization error: $e');
+  }
 
   // ✅ OneSignal
-  await _initOneSignal();
+  try {
+    await _initOneSignal();
+  } catch (e) {
+    debugPrint('OneSignal initialization error: $e');
+  }
 
   await CartStore.instance.restore();
   await AuthService.instance.restore();
